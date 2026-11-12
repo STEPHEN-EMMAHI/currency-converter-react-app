@@ -62,7 +62,7 @@ export default function Converter() {
       {/* From */}
       <section>
         <h3 className="font-bold my-4 text-center">FROM</h3>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 max-md:mx-12">
           <SelectCountryField>
             <select
               name="from-country"
@@ -94,7 +94,7 @@ export default function Converter() {
       {/* To */}
       <section>
         <h3 className="font-bold my-4 text-center">TO</h3>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 max-md:mx-12">
           <SelectCountryField>
             <select
               name="to-country"

@@ -1,1 +1,8 @@
 @import "tailwindcss";
+@import url("https://googleapis.com");
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* clear the top and bottom arrow that appears on the number input field */

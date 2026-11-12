@@ -19,6 +19,8 @@ export default function Converter() {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadCurrenciesData() {
       try {
         setIsLoadingCurrencies(true);
@@ -26,6 +28,7 @@ export default function Converter() {
 
         const response = await fetch(
           `https://v6.exchangerate-api.com/v6/${apiKey}/codes`,
+          { signal: controller.signal },
         );
 
         // check if the server responded to an error
@@ -40,10 +43,16 @@ export default function Converter() {
           ),
         );
       } catch (error) {
+        if (error.name === "AbortError") {
+          console.error("Fetch request aborted");
+          return;
+        }
         console.error("data failed to load", error);
         setIsError(true);
       } finally {
-        setIsLoadingCurrencies(false);
+        if (!controller.signal.aborted) {
+          setIsLoadingCurrencies(false);
+        }
       }
     }
 

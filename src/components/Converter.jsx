@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const apiKey = import.meta.env.VITE_FREECURRENCY_API_KEY;
+const apiKey = import.meta.env.VITE_EXCHANGE_RATE_API_KEY;
 
 export default function Converter() {
   // array to store the currencies data

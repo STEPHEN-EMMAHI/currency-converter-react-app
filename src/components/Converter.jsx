@@ -1,6 +1,6 @@
 export default function Converter() {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center">
       {/* From */}
       <section>
         <h3 className="font-bold my-4 text-center">FROM</h3>
@@ -11,15 +11,12 @@ export default function Converter() {
             label="from-country"
           />
           <AmountConversion>
-            <label htmlFor="amount-to-convert" className="mr-4">
-              Amount
-            </label>
             <input
               type="number"
               id="amount-to-convert"
               name="amount-to-convert"
               placeholder="Amount"
-              className="border p-1 w-[50%] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="border p-1 w-full text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoComplete="country-name"
             />
           </AmountConversion>
@@ -36,14 +33,11 @@ export default function Converter() {
             label="to-country"
           />
           <AmountConversion>
-            <label htmlFor="conversion-rate" className="mr-9.5">
-              Rate
-            </label>
             <input
               type="number"
               id="conversion-rate"
               name="conversion-rate"
-              className="border p-1 w-[50%] text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="border p-1 w-full text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoComplete="country-name"
               disabled
             />
@@ -54,16 +48,13 @@ export default function Converter() {
   );
 }
 
-function SelectCountryField({ id, name, label }) {
+function SelectCountryField({ id, name }) {
   return (
     <div>
-      <label htmlFor={label} className="mr-4">
-        Country
-      </label>
       <select
         name={name}
         id={id}
-        className="border p-1 w-[50%] appearance-none text-center"
+        className="w-full p-1 lg:cursor-pointer text-center border"
       >
         <option value="ghana">Ghana</option>
         <option value="america">america</option>

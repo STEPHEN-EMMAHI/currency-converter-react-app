@@ -1,8 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
-@import url("https://googleapis.com");
 
 body {
   font-family: "Inter", sans-serif;
 }
-
-/* clear the top and bottom arrow that appears on the number input field */

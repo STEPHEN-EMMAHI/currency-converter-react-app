@@ -1,11 +1,10 @@
 <div align="center">
-# 💱 Currency Converter
+  <h1>Currency Converter</h1>
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![API](https://img.shields.io/badge/ExchangeRate--API-v6-2E7D32?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-in%20progress-F9A825?style=for-the-badge)
 
 [Requirements](#-project-requirements) · [Getting Started](#-getting-started) · [How It Works](#-how-it-works) · [Roadmap](#-roadmap)
 

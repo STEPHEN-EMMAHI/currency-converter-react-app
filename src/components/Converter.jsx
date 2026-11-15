@@ -1,70 +1,116 @@
 import { useEffect, useState } from "react";
 
-const apiKey = import.meta.env.VITE_EXCHANGE_RATE_API_KEY;
+const exchangeRateApiKey = import.meta.env.VITE_EXCHANGE_RATE_API_KEY;
 
 export default function Converter() {
-  // array to store the currencies data
-  const [currencies, setCurrencies] = useState([]);
+  // List of currencies returned by the API.
+  const [availableCurrencies, setAvailableCurrencies] = useState([]);
 
-  // an array to contain the selected currency we want to convert from
-  const [fromSelectedCurrency, setfromSelectedCurrency] = useState("USD");
+  // Currency code selected in the FROM field.
+  const [fromCurrencyCode, setFromCurrencyCode] = useState("USD");
 
-  // an array to contain the selected currency we want to convert to
-  const [toSelectedCurrency, setToSelectedCurrency] = useState("GHC");
+  // Currency code selected in the TO field.
+  const [toCurrencyCode, setToCurrencyCode] = useState("GHS");
 
-  // state to show whether currencies has been loaded or not
-  const [isLoadingCurrencies, setIsLoadingCurrencies] = useState(true);
+  // Whether an API request is in progress.
+  const [isLoading, setIsLoading] = useState(true);
 
-  // state to display an error or not
-  const [isError, setIsError] = useState(false);
+  // Whether an API request has failed.
+  const [hasError, setHasError] = useState(false);
+
+  // Amount entered in the FROM field.
+  const [amountToConvert, setAmountToConvert] = useState("");
+
+  // Exchange rate returned for the selected currency pair.
+  const [conversionRate, setConversionRate] = useState("");
+
+  // Calculate the displayed value from the TO currency code and exchange rate.
+  const convertedAmount =
+    amountToConvert !== "" && conversionRate !== ""
+      ? (Number(amountToConvert) * Number(conversionRate)).toFixed(2)
+      : "";
 
   useEffect(() => {
-    const controller = new AbortController();
+    const abortController = new AbortController();
 
-    async function loadCurrenciesData() {
+    async function loadAvailableCurrencies() {
       try {
-        setIsLoadingCurrencies(true);
-        setIsError(false);
+        setIsLoading(true);
+        setHasError(false);
 
-        const response = await fetch(
-          `https://v6.exchangerate-api.com/v6/${apiKey}/codes`,
-          { signal: controller.signal },
+        const apiResponse = await fetch(
+          `https://v6.exchangerate-api.com/v6/${exchangeRateApiKey}/codes`,
+          { signal: abortController.signal },
         );
 
-        // check if the server responded to an error
-        if (!response.ok)
-          throw new Error(`Currency API request failed: ${response.status}`);
+        // Reject unsuccessful currency-list responses.
+        if (!apiResponse.ok)
+          throw new Error(`Currency API request failed: ${apiResponse.status}`);
 
-        const results = await response.json();
-        setCurrencies(
+        const currencyData = await apiResponse.json();
+        setAvailableCurrencies(
           Object.values(
-            results.supported_codes.map(([code, name]) => ({ code, name })),
+            currencyData.supported_codes.map(
+              ([currencyCode, currencyName]) => ({
+                code: currencyCode,
+                name: currencyName,
+              }),
+            ),
             0,
           ),
         );
-      } catch (error) {
-        if (error.name === "AbortError") {
-          console.error("Fetch request aborted");
+      } catch (caughtError) {
+        if (caughtError.name === "AbortError") {
           return;
         }
-        console.error("data failed to load", error);
-        setIsError(true);
+        setHasError(true);
       } finally {
-        if (!controller.signal.aborted) {
-          setIsLoadingCurrencies(false);
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
         }
       }
     }
 
-    loadCurrenciesData();
+    loadAvailableCurrencies();
+    return () => abortController.abort();
   }, []);
 
-  // if the currency is loading, return a message
-  if (isLoadingCurrencies)
-    return <p className="text-center">Loading data...</p>;
+  useEffect(() => {
+    const abortController = new AbortController();
 
-  // if there is an error, return a message
-  if (isError) return <p className="text-center">❌Data failed to load</p>;
+    async function loadConversionRate() {
+      try {
+        setIsLoading(true);
+        setHasError(false);
+
+        const apiResponse = await fetch(
+          `https://v6.exchangerate-api.com/v6/${exchangeRateApiKey}/pair/${fromCurrencyCode}/${toCurrencyCode}`,
+          {
+            signal: abortController.signal,
+          },
+        );
+
+        if (!apiResponse.ok)
+          throw new Error(`Rate api request failed': ${apiResponse.status}`);
+
+        const exchangeRateData = await apiResponse.json();
+        setConversionRate(exchangeRateData.conversion_rate);
+      } catch (caughtError) {
+        if (caughtError.name === "AbortError") return;
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
+        if (!abortController.signal.aborted);
+      }
+    }
+
+    loadConversionRate();
+
+    return () => abortController.abort();
+  }, [fromCurrencyCode, toCurrencyCode]);
+
+  // Show an error message if an API request fails.
+  if (hasError) return <p className="text-center">❌Data failed to load</p>;
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -76,11 +122,11 @@ export default function Converter() {
             <select
               name="from-country"
               id="from-country"
-              value={fromSelectedCurrency}
+              value={fromCurrencyCode}
               className="w-full p-1 lg:cursor-pointer text-center border"
-              onChange={(e) => setfromSelectedCurrency(e.target.value)}
+              onChange={(event) => setFromCurrencyCode(event.target.value)}
             >
-              {currencies.map((currency) => (
+              {availableCurrencies.map((currency) => (
                 <option key={currency.code} value={currency.code}>
                   {currency.code} - {currency.name}
                 </option>
@@ -93,8 +139,10 @@ export default function Converter() {
               id="amount-to-convert"
               name="amount-to-convert"
               placeholder="Amount"
+              value={amountToConvert}
               className="border p-1 w-full text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoComplete="country-name"
+              onChange={(event) => setAmountToConvert(event.target.value)}
             />
           </AmountConversion>
         </div>
@@ -108,11 +156,11 @@ export default function Converter() {
             <select
               name="to-country"
               id="to-country"
-              value={toSelectedCurrency}
+              value={toCurrencyCode}
               className="w-full p-1 lg:cursor-pointer text-center border"
-              onChange={(e) => setToSelectedCurrency(e.target.value)}
+              onChange={(event) => setToCurrencyCode(event.target.value)}
             >
-              {currencies.map((currency) => (
+              {availableCurrencies.map((currency) => (
                 <option key={currency.code} value={currency.code}>
                   {currency.code} - {currency.name}
                 </option>
@@ -124,6 +172,7 @@ export default function Converter() {
               type="number"
               id="conversion-rate"
               name="conversion-rate"
+              value={convertedAmount}
               className="border p-1 w-full text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoComplete="country-name"
               disabled
